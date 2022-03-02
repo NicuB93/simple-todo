@@ -2,8 +2,8 @@ import * as S from "./styled";
 
 type UsersProps = {
   users: {
-    username: string;
-    age: string;
+    username?: string;
+    age?: number;
   }[];
   removeHandler: (i: number) => void;
 };

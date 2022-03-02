@@ -5,9 +5,10 @@ export default class MyDocument extends Document {
   render() {
     return (
       <Html lang="en">
-        <Head></Head>
+        <Head />
         <body>
           <Main />
+          <div id="modal" />
           <NextScript />
         </body>
       </Html>

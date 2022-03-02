@@ -4,13 +4,6 @@ type ModalWindow = {
   modal: boolean;
 };
 
-type Users = {
-  users: {
-    username: string;
-    age: string;
-  }[];
-};
-
 export const Container = styled.div<ModalWindow>`
   position: absolute;
   display: flex;

@@ -1,23 +1,40 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilState } from "recoil";
-import { modal } from "../../../atoms/modal";
-import { Modal } from "../ModalWindow";
+import { modal, mounted } from "../../../atoms/modal";
+import { PortalModal } from "../ModalWindow";
 import { Users } from "../Users";
 import * as S from "./styled";
 
 export const Main = () => {
+  const [isMounted, setIsMounted] = useRecoilState(mounted);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const ageRef = useRef<HTMLInputElement>(null);
   const [openModal, setOpenModal] = useRecoilState<boolean>(modal);
-  const [username, setUsername] = useState<string>("");
-  const [age, setAge] = useState<string>("");
-  const [users, setUsers] = useState<
-    { username: typeof username; age: typeof age }[]
-  >([]);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [users, setUsers] = useState<{ username?: string; age?: number }[]>([]);
+  const [errorMessage, setErrorMessage] =
+    useState<{ title?: string; message?: string }>();
 
   const addUserHandler = () => {
-    setUsers((prevArray) => [...prevArray, { username: username, age: age }]);
-    setUsername("");
-    setAge("");
+    const username = usernameRef.current?.value.trim();
+    const age = Number(ageRef.current?.value.trim());
+
+    if (username?.length === 0) {
+      setErrorMessage({
+        title: "Invalid input",
+        message: "Please enter a valid username",
+      });
+      return setOpenModal(true);
+    } else if (age < 16 || age > 100) {
+      setErrorMessage({
+        title: "Invalid age",
+        message: "Legal age is between 16 and 100",
+      });
+      return setOpenModal(true);
+    } else {
+      setUsers((prevArray) => [...prevArray, { username: username, age: age }]);
+      usernameRef.current && (usernameRef.current.value = "");
+      ageRef.current && (ageRef.current.value = "");
+    }
   };
 
   const removeUserHandler = (i: number) => {
@@ -26,20 +43,9 @@ export const Main = () => {
     );
   };
 
-  const nameValidationPattern = /\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/;
-
-  const formValidation = () => {
-    if (!username.match(nameValidationPattern)) {
-      setErrorMessage("Please enter a valid username");
-      return setOpenModal(true);
-    } else if (isNaN(+age)) {
-      setErrorMessage("Please enter a valid age");
-      return setOpenModal(true);
-    } else if (+age < 16 || +age > 100) {
-      setErrorMessage("Legal age is between 16 and 100");
-      return setOpenModal(true);
-    } else addUserHandler();
-  };
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <div onClick={() => setOpenModal(false)}>
@@ -47,28 +53,16 @@ export const Main = () => {
         <S.Form onClick={(e) => e.stopPropagation()}>
           <div className="username">
             <label htmlFor="username">Username</label>
-            <input
-              onChange={(event) => setUsername(event.target.value)}
-              value={username}
-              type="text"
-              name="username"
-              id=""
-            />
+            <input type="text" name="username" id="" ref={usernameRef} />
           </div>
           <div className="age">
             <label htmlFor="age">Age (Years)</label>
-            <input
-              onChange={(event) => setAge(event.target.value)}
-              value={age}
-              type="text"
-              name="age"
-              id=""
-            />
+            <input type="number" name="age" id="" ref={ageRef} />
           </div>
           <button
             onClick={(e) => {
               e.preventDefault();
-              return formValidation();
+              return addUserHandler();
             }}
             className="add-user"
           >
@@ -77,7 +71,7 @@ export const Main = () => {
         </S.Form>
         <Users users={users} removeHandler={removeUserHandler} />
       </S.Container>
-      <Modal content={errorMessage} />
+      <PortalModal content={errorMessage} />
     </div>
   );
 };

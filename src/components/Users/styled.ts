@@ -2,8 +2,7 @@ import styled from "styled-components";
 
 type Users = {
   users: {
-    username: string;
-    age: string;
+    username?: string;
   }[];
 };
 
@@ -14,13 +13,12 @@ export const Users = styled.div<Users>`
   display: flex;
   flex-direction: column;
   gap: 5px;
-  transition: max-height 0.5s ease;
+  transition: height 0.5s ease;
   transition: opacity 0.5s ease;
   transition: padding 0.5s ease;
   height: auto;
   opacity: ${({ users }) => (users.length > 0 ? "1" : "0")};
   padding: ${({ users }) => (users.length > 0 ? "14px" : "0")};
-  max-height: ${({ users }) => (users.length > 0 ? "100px" : "0")};
 
   .username-render {
     background-color: rgba(0, 0, 0, 0.1);
